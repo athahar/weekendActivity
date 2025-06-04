@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Activity Recommender</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <div class="card">
+      <h1>🎯 Personalized Activity Recommender</h1>
+      <form id="activityForm">
+        <input
+          type="text"
+          id="cityInput"
+          placeholder="Enter your city (e.g., Portland)"
+          required
+        />
+
+        <div class="checkboxes">
+          <label><input type="checkbox" id="music" /> Music Lover</label>
+          <label><input type="checkbox" id="outdoors" /> Outdoorsy</label>
+        </div>
+
+        <button type="submit" id="submitBtn">Get Recommendation</button>
+      </form>
+
+      <div id="resultBox" class="hidden">
+        <h2>✨ Recommendation</h2>
+
+        <div id="weatherToday" class="structured-box">
+          <!-- Today's weather will be inserted here -->
+        </div>
+
+        <div id="structuredResult" class="structured-box">
+          <!-- Injected recommendation goes here -->
+        </div>
+
+        <details class="debug-toggle">
+          <summary>View memory</summary>
+          <pre id="debugMemory"></pre>
+        </details>
+      </div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html> 
