@@ -1,0 +1,12 @@
+# Environment variables
+.env
+.env.*
+
+# Node modules (for JS projects)
+node_modules/
+
+# OS junk
+.DS_Store
+
+# Logs
+*.log
