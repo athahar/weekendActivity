@@ -127,7 +127,7 @@ function renderEventsGrouped(events) {
       div.appendChild(title);
       div.appendChild(meta);
       div.appendChild(loc);
-      div.appendChild(badge);
+      // div.appendChild(badge);
       section.appendChild(div);
     });
 
