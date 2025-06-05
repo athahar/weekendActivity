@@ -1,4 +1,5 @@
 import openai from './openaiClient.js';
+import { logTokenUsage } from './logTokenUsage.cjs';
 
 // Check for typical fallback disclaimers
 function looksLikeFailure(text) {
@@ -68,7 +69,12 @@ export async function getEventRecommendations(city, preferences) {
     return res.choices?.[0]?.message?.content?.trim() || '';
   };
 
+  
+
   let response = await callLLM();
+
+  logTokenUsage('getEventRecommendations: ', response?.usage, { city });
+
   if (looksLikeInvalidJson(response)) {
     console.warn('⚠️ Weak event format or fallback message, retrying...');
     response = await callLLM(0.2);
@@ -76,7 +82,7 @@ export async function getEventRecommendations(city, preferences) {
 
   try {
     const json = JSON.parse(response);
-    console.log('🎯 Final parsed event list:', json);
+    // console.log('🎯 Final parsed event list:', json);
 
     if (!Array.isArray(json)) throw new Error('Expected array of events');
     return json;

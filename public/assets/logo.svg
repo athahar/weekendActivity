@@ -1,0 +1,11 @@
+<!-- public/assets/wanderspark-logo.svg -->
+<svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fcd34d"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="50" r="48" fill="url(#glow)" stroke="#facc15" stroke-width="2"/>
+  <path d="M50 20 L54 40 L70 40 L56 52 L60 70 L50 60 L40 70 L44 52 L30 40 L46 40 Z" fill="white" />
+</svg>

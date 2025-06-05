@@ -111,3 +111,57 @@ To move from MVP to a **truly personalized, multi-user, memory-aware planning as
 
 ## 🗂 Architecture Summary
 
+User Input
+↓
+Frontend UI
+↓
+/recommend (Express backend)
+↓
+[ OrchestratorAgent ]
+├── profileAgent
+├── availabilityAgent
+├── savedNoteRAGAgent
+├── weatherAgent
+├── eventAgent
+└── tripPlannerAgent (if time > 1 day)
+↓
+LLM Recommendation
+↓
+Frontend Render (with memory & breakdown)
+
+## 🔍 Example Use Case
+
+- User has a profile with kids (ages 6 & 10), and interests in food + hiking
+- They forward 5 blog links and 2 YouTube videos on “Top things to do near SF”
+- On a Friday, they open the app and say:
+  > “We have 1 day free on Saturday. What can we do nearby that everyone would enjoy?”
+
+System:
+- Pulls the weather forecast
+- Checks saved notes + LLM suggestions
+- Filters for 1-day plans with child-friendly activities
+- Recommends: a local hiking trail + lunch stop + kid-friendly museum
+- Reminds: “You saved this 3 months ago: ‘Bay Area redwoods + tacos loop!’ Want to go?”
+
+---
+
+## 🚧 What’s Next
+
+1. [ ] Set up Supabase tables: `users`, `family_members`, `saved_notes`
+2. [ ] Build `profileAgent` to fetch structured user + family info
+3. [ ] Build `savedNoteRAGAgent` with Pinecone + scoped filtering
+4. [ ] Extend frontend for profile management + note entry
+5. [ ] Implement planning across durations: 2 hrs, day, weekend
+
+---
+
+## 🧑‍💻 Contributor Notes
+
+- Stack: Node.js (Express), Supabase, Pinecone, OpenAI, HTML/CSS/JS
+- Fully serverless-compatible
+- Designed for multi-agent clarity and testability
+- All agent calls are logged for transparency and debugging
+
+---
+
+**Let’s build the copilot that turns “we should do something fun” into “we had the best day together.”**

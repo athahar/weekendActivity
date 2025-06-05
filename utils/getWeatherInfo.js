@@ -1,5 +1,8 @@
+// /utils/getWeatherInfo.js
+
 import fetch from 'node-fetch';
 import openai from './openaiClient.js';
+import { logTokenUsage } from './logTokenUsage.cjs';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -25,6 +28,7 @@ export async function getWeatherSummary(city) {
     throw new WeatherError('OpenWeatherMap API key is not configured', 'CONFIG_ERROR');
   }
 
+  let aiResponse;
   try {
     const parts = city.split(',').map(part => part.trim());
     let formattedCity = '';
@@ -65,12 +69,14 @@ You're a helpful assistant advising a family on outdoor plans. Summarize this we
 `;
 
     console.log(`\n🤖 Calling OpenAI for weather summary`);
-    const aiResponse = await openai.chat.completions.create({
+    aiResponse = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.6
     });
     console.log(`✅ OpenAI response received`);
+
+    logTokenUsage('getWeatherSummary', aiResponse?.usage, { city });
 
     const result = {
       summary: aiResponse.choices?.[0]?.message?.content?.trim() || summaryRaw,
@@ -85,7 +91,7 @@ You're a helpful assistant advising a family on outdoor plans. Summarize this we
     throw new WeatherError(
       'Unexpected error fetching weather data',
       'FETCH_ERROR',
-      { city, originalError: error.message }
+      { city, originalError: error.message, aiResponse }
     );
   }
 }
