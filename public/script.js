@@ -4,100 +4,145 @@ document.getElementById('activityForm').addEventListener('submit', async (e) => 
   const city = document.getElementById('cityInput').value;
   const preferences = {
     music: document.getElementById('music').checked,
-    outdoors: document.getElementById('outdoors').checked
+    outdoors: document.getElementById('outdoors').checked,
+    kids: document.getElementById('kids').checked,
+    food: document.getElementById('food').checked,
+    wellness: document.getElementById('wellness').checked,
+    markets: document.getElementById('markets').checked
   };
 
   const submitBtn = document.getElementById('submitBtn');
-  submitBtn.textContent = 'Thinking...';
   submitBtn.disabled = true;
+  submitBtn.textContent = 'Thinking...';
+
+  const resultBox = document.getElementById('resultBox');
+  const structured = document.getElementById('structuredResult');
+  const weatherEl = document.getElementById('weatherToday');
+  const debug = document.getElementById('debugMemory');
+
+  resultBox.classList.add('hidden');
+  structured.innerHTML = '';
+  weatherEl.innerHTML = '';
+  debug.textContent = '';
 
   try {
-    const res = await fetch('http://localhost:3000/recommend', {
+    const res = await fetch('/recommend', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ city, preferences })
     });
 
     const data = await res.json();
-    
-    renderWeather(data.memory.weather || 'No weather data available.');
-    renderStructuredResult(data.recommendation);
-    document.getElementById('debugMemory').textContent = JSON.stringify(data.memory, null, 2);
-    document.getElementById('resultBox').classList.remove('hidden');
+    const memory = data.memory || {};
+    const weather = memory.weather?.summary || 'No weather data';
+    const events = Array.isArray(memory.events) ? memory.events : [];
 
-  } catch (error) {
-    alert('Something went wrong. Try again.');
-    console.error(error);
+    renderWeather(memory.weather);
+    renderEventsGrouped(events);
+    debug.textContent = JSON.stringify(memory, null, 2);
+    resultBox.classList.remove('hidden');
+  } catch (err) {
+    alert('❌ Something went wrong.');
+    console.error(err);
   } finally {
-    submitBtn.textContent = 'Get Recommendation';
     submitBtn.disabled = false;
+    submitBtn.textContent = 'Get Recommendation';
   }
 });
 
-// Naive parser: splits based on common keywords
-function renderStructuredResult(text) {
-  const container = document.getElementById('structuredResult');
-  container.innerHTML = ''; // Clear previous result
-
-  const sections = [
-    { title: 'Summary', keywords: ['summary:', 'weather:'] },
-    { title: 'Event Suggestions', keywords: ['event', 'festival', 'concert', 'music', 'venue'] },
-    { title: 'Advice & Tips', keywords: ['remember', 'carry', 'you might', 'dress', 'be cautious'] }
-  ];
-
-  const lowerText = text.toLowerCase();
-  const paragraphs = text.split('\n').filter(p => p.trim());
-
-  sections.forEach(({ title, keywords }) => {
-    const matched = paragraphs.filter(p =>
-      keywords.some(k => p.toLowerCase().includes(k))
-    );
-
-    if (matched.length > 0) {
-      const section = document.createElement('div');
-      const heading = document.createElement('h3');
-      heading.textContent = title;
-      section.appendChild(heading);
-
-      matched.forEach(p => {
-        const para = document.createElement('p');
-        para.textContent = p; // Use textContent to avoid XSS
-        section.appendChild(para);
-      });
-
-      container.appendChild(section);
-    }
-  });
-
-  // fallback: if nothing matched, dump entire text
-  if (container.innerHTML === '') {
-    const fallback = document.createElement('p');
-    fallback.textContent = text;
-    container.appendChild(fallback);
-  }
-}
-
-function renderWeather(weatherData) {
+function renderWeather(weather) {
   const weatherBox = document.getElementById('weatherToday');
   weatherBox.innerHTML = '';
 
   const heading = document.createElement('h3');
-  heading.textContent = "☁️ Today's Weather";
+  heading.textContent = "🌤️ Today's Weather";
   weatherBox.appendChild(heading);
 
-  if (!weatherData || typeof weatherData !== 'object') {
-    const p = document.createElement('p');
-    p.textContent = 'Weather data not available.';
-    weatherBox.appendChild(p);
+  if (!weather?.summary) {
+    weatherBox.appendChild(document.createTextNode('Weather data unavailable.'));
     return;
   }
 
-  const lines = (weatherData.summary || '').split('\n');
+  const lines = weather.summary.split('\n');
   lines.forEach(line => {
-    if (line.trim()) {
-      const p = document.createElement('p');
-      p.textContent = line.trim();
-      weatherBox.appendChild(p);
-    }
+    const p = document.createElement('p');
+    p.textContent = line.trim();
+    weatherBox.appendChild(p);
   });
-} 
+}
+
+function renderEventsGrouped(events) {
+  const container = document.getElementById('structuredResult');
+  container.innerHTML = '';
+
+  if (!events.length) {
+    const fallback = document.createElement('p');
+    fallback.textContent = 'No events found. Try adjusting preferences or checking your internet connection.';
+    fallback.style.color = '#999';
+    container.appendChild(fallback);
+    return;
+  }
+
+  const weekend = events.filter(ev => ev.when === 'this weekend');
+  const upcoming = events.filter(ev => ev.when === 'upcoming');
+
+  const renderGroup = (label, emoji, list) => {
+    if (!list.length) return;
+
+    list.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    const section = document.createElement('section');
+    section.style.marginTop = '2rem';
+
+    const heading = document.createElement('h3');
+    heading.innerHTML = `<strong>${emoji} ${label}</strong>`;
+    heading.style.marginBottom = '1rem';
+    section.appendChild(heading);
+
+    list.forEach(ev => {
+      const div = document.createElement('div');
+      div.className = 'eventCard';
+      div.style.marginBottom = '1.2em';
+
+      const title = document.createElement('strong');
+      title.textContent = `${ev.emoji} ${ev.name}`;
+      title.style.display = 'block';
+      title.style.marginBottom = '0.25em';
+
+      const meta = document.createElement('p');
+      meta.textContent = `${ev.description} (${formatDate(ev.date)}, ${ev.time})`;
+
+      const loc = document.createElement('p');
+      loc.textContent = `📍 ${ev.location}`;
+      loc.style.fontSize = '0.85em';
+      loc.style.color = '#666';
+      loc.style.marginTop = '0.25em';
+
+      // const badge = document.createElement('span');
+      // badge.textContent = ev.indoor ? '🏠 Indoor' : '🌳 Outdoor';
+      // badge.style.fontSize = '0.85em';
+      // badge.style.display = 'block';
+      // badge.style.marginTop = '0.2em';
+
+      div.appendChild(title);
+      div.appendChild(meta);
+      div.appendChild(loc);
+      div.appendChild(badge);
+      section.appendChild(div);
+    });
+
+    container.appendChild(section);
+  };
+
+  renderGroup('This Weekend', '🎉', weekend);
+  renderGroup('Upcoming Events', '📌', upcoming);
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric'
+  });
+}

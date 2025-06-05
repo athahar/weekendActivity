@@ -2,49 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Activity Recommender</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weekend Activity Recommender</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="container">
+  <div class="container">
     <div class="card">
-      <h1>🎯 Personalized Activity Recommender</h1>
+      <h1>Find something fun to do</h1>
       <form id="activityForm">
-        <input
-          type="text"
-          id="cityInput"
-          placeholder="Enter your city (e.g., Portland)"
-          required
-        />
-
-        <div class="checkboxes">
-          <label><input type="checkbox" id="music" /> Music Lover</label>
-          <label><input type="checkbox" id="outdoors" /> Outdoorsy</label>
+        <input id="cityInput" type="text" placeholder="Enter your city..." />
+        <div class="checkbox-grid">
+          <label><input type="checkbox" id="music"> Music</label>
+          <label><input type="checkbox" id="outdoors"> Outdoors</label>
+          <label><input type="checkbox" id="kids"> Family & Kids</label>
+          <label><input type="checkbox" id="food"> Food & Drink</label>
+          <label><input type="checkbox" id="wellness"> Health & Wellness</label>
+          <label><input type="checkbox" id="markets"> Local Markets</label>
         </div>
-
         <button type="submit" id="submitBtn">Get Recommendation</button>
       </form>
 
       <div id="resultBox" class="hidden">
-        <h2>✨ Recommendation</h2>
-
-        <div id="weatherToday" class="structured-box">
-          <!-- Today's weather will be inserted here -->
-        </div>
-
-        <div id="structuredResult" class="structured-box">
-          <!-- Injected recommendation goes here -->
-        </div>
-
+        <div id="weatherToday"></div>
+        <div id="structuredResult" class="structured-box"></div>
         <details class="debug-toggle">
-          <summary>View memory</summary>
+          <summary>🔧 Memory (debug)</summary>
           <pre id="debugMemory"></pre>
         </details>
       </div>
     </div>
-  </main>
-
+  </div>
   <script src="script.js"></script>
 </body>
-</html> 
+</html>

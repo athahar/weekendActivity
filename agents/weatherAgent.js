@@ -1,52 +1,40 @@
-//agents/weatherAgent.js
+// agents/weatherAgent.js
+import { getWeatherSummary } from '../utils/getWeatherInfo.js';
+import { getTimeOfDay } from '../utils/timeUtil.js';
 
-import OpenAI from 'openai';
-import dotenv from 'dotenv';
-dotenv.config();
+export const WeatherAgent = {
+  name: 'WeatherAgent',
+  goal: "Analyze current weather conditions for user's location.",
+  tools: ['getWeatherSummary', 'getTimeOfDay'],
+  async run(city, memory) {
+    console.log(`\n🔄 ${this.name} starting execution`);
+    console.log(`📥 Input: city=${city}`);
 
-import { getWeatherInfo, WeatherError } from '../utils/getWeatherInfo.js';
+    console.log(`\n📞 ${this.name} calling getWeatherSummary`);
+    const weather = await getWeatherSummary(city);
+    console.log(`✅ getWeatherSummary completed`);
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    console.log(`\n📞 ${this.name} calling getTimeOfDay`);
+    const time = getTimeOfDay();
+    console.log(`✅ getTimeOfDay completed`);
 
-function isValidWeatherSummary(summary) {
-  return summary.toLowerCase().includes('temperature') &&
-         summary.toLowerCase().includes('humidity');
-}
+    memory.weather = weather;
+    memory.time = time;
 
-export async function getWeatherAnalysis(city) {
-  const weather = await getWeatherInfo(city);
-  let attempts = 0;
-  let summary = '';
-  let confidence = 'low';
-
-  while (attempts < 2) {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a weather analyst. Provide a summary that includes temperature, humidity, and outdoor advice.'
-        },
-        {
-          role: 'user',
-          content: `City: ${city}\nWeather data: ${JSON.stringify(weather)}`
-        }
-      ]
+    memory.log.push({
+      agent: 'WeatherAgent',
+      tool: 'getWeatherSummary',
+      input: city,
+      output: weather
     });
 
-    summary = completion.choices[0].message.content.trim();
-    attempts++;
+    memory.log.push({
+      agent: 'WeatherAgent',
+      tool: 'getTimeOfDay',
+      input: null,
+      output: time
+    });
 
-    if (isValidWeatherSummary(summary)) {
-      confidence = 'high';
-      break;
-    }
+    console.log(`\n✅ ${this.name} completed execution`);
   }
-
-  return {
-    summary,
-    confidence,
-    attempts,
-    valid: confidence === 'high'
-  };
-}
+};
