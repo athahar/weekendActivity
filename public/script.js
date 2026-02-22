@@ -8,6 +8,8 @@ function saveProfile() {
   const profile = {
     city: $('#cityInput').val(),
     kidsAges: getKidsAges(),
+    radiusMiles: parseInt($('#radiusSelect').val(), 10),
+    targetDate: $('#dateInput').val(),
     preferences: {
       music: $('#music').is(':checked'),
       outdoors: $('#outdoors').is(':checked'),
@@ -30,6 +32,14 @@ function loadProfile() {
       $('#cityInput').val(profile.city);
     }
 
+    if (profile.radiusMiles) {
+      $('#radiusSelect').val(profile.radiusMiles);
+    }
+
+    if (profile.targetDate) {
+      $('#dateInput').val(profile.targetDate);
+    }
+
     if (profile.preferences) {
       Object.entries(profile.preferences).forEach(([key, val]) => {
         $(`#${key}`).prop('checked', val);
@@ -37,7 +47,6 @@ function loadProfile() {
     }
 
     if (Array.isArray(profile.kidsAges) && profile.kidsAges.length > 0) {
-      // Clear existing rows and rebuild
       $('#kidsAgeInputs').empty();
       profile.kidsAges.forEach(age => {
         const row = $(`
@@ -71,7 +80,6 @@ function getChats() {
 function saveChat(chatEntry) {
   const chats = getChats();
   chats.unshift(chatEntry);
-  // Keep last 50 chats
   if (chats.length > 50) chats.length = 50;
   localStorage.setItem(CHATS_KEY, JSON.stringify(chats));
 }
@@ -134,8 +142,14 @@ function loadChat(chat) {
   activeChatId = chat.id;
   renderChatList();
 
-  // Restore the form inputs to match this chat
   $('#cityInput').val(chat.city);
+
+  if (chat.radiusMiles) {
+    $('#radiusSelect').val(chat.radiusMiles);
+  }
+  if (chat.targetDate) {
+    $('#dateInput').val(chat.targetDate);
+  }
 
   if (chat.preferences) {
     Object.entries(chat.preferences).forEach(([key, val]) => {
@@ -157,7 +171,6 @@ function loadChat(chat) {
     });
   }
 
-  // Render the saved results
   const memory = chat.memory || {};
   const events = Array.isArray(memory.events) ? memory.events : [];
   renderWeather(memory.weather);
@@ -220,8 +233,61 @@ $('#newChatBtn').on('click', function () {
   activeChatId = null;
   clearResults();
   renderChatList();
-  // Keep current profile in the form — user can change if they want
 });
+
+// =============================================
+// Calendar export (.ics)
+// =============================================
+function generateICS(ev) {
+  // Parse date and time into a basic DTSTART
+  const dateStr = ev.date; // "2025-06-08"
+  const timeStr = ev.time || '12:00 PM';
+
+  // Parse time like "6:00 PM" -> { hours, minutes }
+  const timeParts = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  let hours = 12, minutes = 0;
+  if (timeParts) {
+    hours = parseInt(timeParts[1], 10);
+    minutes = parseInt(timeParts[2], 10);
+    const ampm = timeParts[3].toUpperCase();
+    if (ampm === 'PM' && hours < 12) hours += 12;
+    if (ampm === 'AM' && hours === 12) hours = 0;
+  }
+
+  const startDate = new Date(`${dateStr}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`);
+  const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000); // assume 2-hour duration
+
+  const fmt = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//WanderSpark//EN',
+    'BEGIN:VEVENT',
+    `DTSTART:${fmt(startDate)}`,
+    `DTEND:${fmt(endDate)}`,
+    `SUMMARY:${ev.name}`,
+    `DESCRIPTION:${ev.description || ''}`,
+    `LOCATION:${ev.location || ''}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  return ics;
+}
+
+function downloadICS(ev) {
+  const ics = generateICS(ev);
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${ev.name.replace(/[^a-zA-Z0-9]/g, '_')}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 // =============================================
 // Form submission
@@ -231,6 +297,8 @@ $('#activityForm').on('submit', async function (e) {
 
   const city = $('#cityInput').val();
   const kidsAges = getKidsAges();
+  const radiusMiles = parseInt($('#radiusSelect').val(), 10) || 25;
+  const targetDate = $('#dateInput').val() || '';
   const preferences = {
     music: $('#music').is(':checked'),
     outdoors: $('#outdoors').is(':checked'),
@@ -240,7 +308,6 @@ $('#activityForm').on('submit', async function (e) {
     markets: $('#markets').is(':checked')
   };
 
-  // Save profile on every submission
   saveProfile();
 
   const $submitBtn = $('#submitBtn');
@@ -262,7 +329,7 @@ $('#activityForm').on('submit', async function (e) {
     const res = await fetch('/recommend', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ city, preferences, kidsAges })
+      body: JSON.stringify({ city, preferences, kidsAges, radiusMiles, targetDate })
     });
 
     $thinkingBox.text('🎭 Looking for local events...');
@@ -279,11 +346,12 @@ $('#activityForm').on('submit', async function (e) {
     $resultBox.removeClass('hidden');
     $thinkingBox.addClass('hidden');
 
-    // Save this session to chat history
     const chatEntry = {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       city,
       kidsAges,
+      radiusMiles,
+      targetDate,
       preferences,
       memory,
       timestamp: new Date().toISOString()
@@ -342,11 +410,17 @@ function renderEventsGrouped(events) {
 
     list.forEach(ev => {
       const div = $('<div>').addClass('eventCard').css('margin-bottom', '1.2em');
-      const header = $('<div>').css({ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25em' });
+      const header = $('<div>').css({ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25em', flexWrap: 'wrap' });
       header.append($('<strong>').text(`${ev.emoji} ${ev.name}`));
       if (ev.ageRange) {
         header.append($('<span>').addClass('age-badge').text(ev.ageRange));
       }
+      const calBtn = $('<button>')
+        .attr('type', 'button')
+        .addClass('cal-export-btn')
+        .text('Add to Calendar')
+        .on('click', function () { downloadICS(ev); });
+      header.append(calBtn);
       div.append(header);
       div.append($('<p>').text(`${ev.description} (${formatDate(ev.date)}, ${ev.time})`));
       div.append($('<p>').text(`📍 ${ev.location}`).css({ fontSize: '0.85em', color: '#666', marginTop: '0.25em' }));
@@ -375,7 +449,6 @@ function formatDate(dateStr) {
 $(function () {
   loadProfile();
   renderChatList();
-  // Collapse sidebar by default on mobile
   if (window.innerWidth <= 768) {
     $('#sidebar').addClass('collapsed');
   }

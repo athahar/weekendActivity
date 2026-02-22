@@ -6,15 +6,17 @@ export const ActivityAgent = {
   goal: 'Recommend activities based on weather, time, and user preferences.',
   tools: ['WeatherAgent', 'EventAgent'],
 
-  async run(city, preferences, memory, kidsAges = []) {
+  async run(city, preferences, memory, options = {}) {
+    const { kidsAges = [], radiusMiles = 25, targetDate = '' } = options;
+
     console.log(`\n🔄 ${this.name} starting execution`);
-    console.log(`📥 Input: city=${city}, preferences=${JSON.stringify(preferences)}, kidsAges=${JSON.stringify(kidsAges)}`);
+    console.log(`📥 Input: city=${city}, preferences=${JSON.stringify(preferences)}, kidsAges=${JSON.stringify(kidsAges)}, radius=${radiusMiles}mi, date=${targetDate || 'any'}`);
 
     memory.log.push({
       agent: this.name,
       goal: this.goal,
       status: 'started',
-      input: { city, preferences, kidsAges }
+      input: { city, preferences, kidsAges, radiusMiles, targetDate }
     });
 
     // Step 1: Get weather
@@ -22,9 +24,9 @@ export const ActivityAgent = {
     await WeatherAgent.run(city, memory);
     console.log(`✅ WeatherAgent completed`);
 
-    // Step 2: Get events (with kids' ages for age-appropriate recommendations)
+    // Step 2: Get events (with all filters)
     console.log(`\n📞 ${this.name} calling EventAgent`);
-    await EventAgent.run(city, preferences, memory, kidsAges);
+    await EventAgent.run(city, preferences, memory, { kidsAges, radiusMiles, targetDate });
     console.log(`✅ EventAgent completed`);
 
     // Step 3: Compose final recommendation
@@ -42,7 +44,7 @@ export const ActivityAgent = {
 
 🕒 **Time of Day**: ${time}
 
-🎯 **Recommended Activities**: 
+🎯 **Recommended Activities**:
 ${Array.isArray(events) && events.length ? events.map(e => `- ${e.name} (${e.date}, ${e.time})`).join('\n') : 'No matching events found.'}
 
 🧠 (Based on your preferences: ${selectedPrefs})

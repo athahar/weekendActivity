@@ -20,7 +20,9 @@ function looksLikeInvalidJson(text) {
   );
 }
 
-export async function getEventRecommendations(city, preferences, kidsAges = []) {
+export async function getEventRecommendations(city, preferences, options = {}) {
+  const { kidsAges = [], radiusMiles = 25, targetDate = '' } = options;
+
   const interestList = Object.entries(preferences)
     .filter(([_, v]) => v)
     .map(([k]) => k)
@@ -45,10 +47,18 @@ export async function getEventRecommendations(city, preferences, kidsAges = []) 
     `
     : '';
 
+  const radiusContext = `All events MUST be within ${radiusMiles} miles of ${city}.`;
+
+  const dateContext = targetDate
+    ? `The user is looking for events on or around ${targetDate}. Prioritize events on that specific date, but include nearby dates if needed.`
+    : '';
+
     const prompt = (city, interests) => `
     You are a local event planner in ${city}. Based on user interests: ${interests}, suggest 5–7 highly relevant events.
 
     ${ageDescription}
+    ${radiusContext}
+    ${dateContext}
     Today's date is ${new Date().toISOString().slice(0, 10)}. Use it to categorize dates accurately.
     ${ageGuidelines}
     Requirements:

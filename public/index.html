@@ -34,6 +34,22 @@
         <form id="activityForm">
           <input type="text" id="cityInput" placeholder="e.g., San Jose, CA" required />
 
+          <div class="filters-row">
+            <div class="filter-group">
+              <label class="section-label" for="radiusSelect">Distance</label>
+              <select id="radiusSelect">
+                <option value="10">Within 10 mi</option>
+                <option value="25" selected>Within 25 mi</option>
+                <option value="50">Within 50 mi</option>
+                <option value="100">Within 100 mi</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="section-label" for="dateInput">Date</label>
+              <input type="date" id="dateInput" />
+            </div>
+          </div>
+
           <div class="kids-age-section">
             <label class="section-label">Kids' Ages</label>
             <div id="kidsAgeInputs" class="kids-age-inputs">
