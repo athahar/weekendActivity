@@ -9,44 +9,83 @@
 
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <div class="logo-title">
-        <div>
-          <h1 class="title">
-            WanderSpark <span class="spark">✨</span>
-          </h1>
-          <p class="tagline">Find your spark</p>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2 class="sidebar-title">History</h2>
+      <button id="newChatBtn" class="new-chat-btn">+ New</button>
+    </div>
+    <div id="chatList" class="chat-list"></div>
+  </aside>
+
+  <button id="sidebarToggle" class="sidebar-toggle">&#9776;</button>
+
+  <main class="main-content">
+    <div class="container">
+      <div class="card">
+        <div class="logo-title">
+          <div>
+            <h1 class="title">
+              WanderSpark <span class="spark">&#10024;</span>
+            </h1>
+            <p class="tagline">Find your spark</p>
+          </div>
         </div>
-      </div>
 
-      <form id="activityForm">
-        <input type="text" id="cityInput" placeholder="e.g., San Jose, CA" required />
+        <form id="activityForm">
+          <input type="text" id="cityInput" placeholder="e.g., San Jose, CA" required />
 
-        <div class="checkbox-grid">
-          <label><input type="checkbox" id="music" /> Music</label>
-          <label><input type="checkbox" id="outdoors" /> Outdoors</label>
-          <label><input type="checkbox" id="kids" /> Family & Kids</label>
-          <label><input type="checkbox" id="food" /> Food & Drink</label>
-          <label><input type="checkbox" id="wellness" /> Health & Wellness</label>
-          <label><input type="checkbox" id="markets" /> Local Markets</label>
+          <div class="filters-row">
+            <div class="filter-group">
+              <label class="section-label" for="radiusSelect">Distance</label>
+              <select id="radiusSelect">
+                <option value="10">Within 10 mi</option>
+                <option value="25" selected>Within 25 mi</option>
+                <option value="50">Within 50 mi</option>
+                <option value="100">Within 100 mi</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="section-label" for="dateInput">Date</label>
+              <input type="date" id="dateInput" />
+            </div>
+          </div>
+
+          <div class="kids-age-section">
+            <label class="section-label">Kids' Ages</label>
+            <div id="kidsAgeInputs" class="kids-age-inputs">
+              <div class="age-row">
+                <input type="number" class="kid-age" min="0" max="17" placeholder="Age" />
+                <button type="button" class="remove-kid-btn" title="Remove">&times;</button>
+              </div>
+            </div>
+            <button type="button" id="addKidBtn" class="add-kid-btn">+ Add another kid</button>
+          </div>
+
+          <div class="checkbox-grid">
+            <label><input type="checkbox" id="music" /> Music</label>
+            <label><input type="checkbox" id="outdoors" /> Outdoors</label>
+            <label><input type="checkbox" id="kids" /> Family & Kids</label>
+            <label><input type="checkbox" id="food" /> Food & Drink</label>
+            <label><input type="checkbox" id="wellness" /> Health & Wellness</label>
+            <label><input type="checkbox" id="markets" /> Local Markets</label>
+          </div>
+
+          <button type="submit" id="submitBtn">Get Recommendation</button>
+          <div id="thinkingIndicator" class="hidden">&#129300; Thinking...</div>
+        </form>
+
+        <div id="resultBox" class="hidden">
+          <div id="weatherToday"></div>
+          <div id="structuredResult" class="structured-box"></div>
+
+          <details class="debug-toggle">
+            <summary>&#128736;&#65039; Memory (debug)</summary>
+            <pre id="debugMemory"></pre>
+          </details>
         </div>
-
-        <button type="submit" id="submitBtn">Get Recommendation</button>
-        <div id="thinkingIndicator" class="hidden">🤔 Thinking...</div>
-      </form>
-
-      <div id="resultBox" class="hidden">
-        <div id="weatherToday"></div>
-        <div id="structuredResult" class="structured-box"></div>
-
-        <details class="debug-toggle">
-          <summary>🛠️ Memory (debug)</summary>
-          <pre id="debugMemory"></pre>
-        </details>
       </div>
     </div>
-  </div>
+  </main>
 
   <script src="script.js"></script>
 </body>
