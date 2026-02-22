@@ -1,7 +1,44 @@
+// --- Kids age input management ---
+$('#addKidBtn').on('click', function () {
+  const row = $(`
+    <div class="age-row">
+      <input type="number" class="kid-age" min="0" max="17" placeholder="Age" />
+      <button type="button" class="remove-kid-btn" title="Remove">&times;</button>
+    </div>
+  `);
+  $('#kidsAgeInputs').append(row);
+});
+
+$('#kidsAgeInputs').on('click', '.remove-kid-btn', function () {
+  const $rows = $('#kidsAgeInputs .age-row');
+  if ($rows.length > 1) {
+    $(this).closest('.age-row').remove();
+  } else {
+    // If it's the last row, just clear the input
+    $(this).closest('.age-row').find('.kid-age').val('');
+  }
+});
+
+function getKidsAges() {
+  const ages = [];
+  $('.kid-age').each(function () {
+    const val = $(this).val();
+    if (val !== '' && val !== null) {
+      const age = parseInt(val, 10);
+      if (!isNaN(age) && age >= 0 && age <= 17) {
+        ages.push(age);
+      }
+    }
+  });
+  return ages;
+}
+
+// --- Form submission ---
 $('#activityForm').on('submit', async function (e) {
   e.preventDefault();
 
   const city = $('#cityInput').val();
+  const kidsAges = getKidsAges();
   const preferences = {
     music: $('#music').is(':checked'),
     outdoors: $('#outdoors').is(':checked'),
@@ -30,7 +67,7 @@ $('#activityForm').on('submit', async function (e) {
     const res = await fetch('/recommend', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ city, preferences })
+      body: JSON.stringify({ city, preferences, kidsAges })
     });
 
     $thinkingBox.text('🎭 Looking for local events...');
@@ -94,7 +131,12 @@ function renderEventsGrouped(events) {
 
     list.forEach(ev => {
       const div = $('<div>').addClass('eventCard').css('margin-bottom', '1.2em');
-      div.append($('<strong>').text(`${ev.emoji} ${ev.name}`).css({ display: 'block', marginBottom: '0.25em' }));
+      const header = $('<div>').css({ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25em' });
+      header.append($('<strong>').text(`${ev.emoji} ${ev.name}`));
+      if (ev.ageRange) {
+        header.append($('<span>').addClass('age-badge').text(ev.ageRange));
+      }
+      div.append(header);
       div.append($('<p>').text(`${ev.description} (${formatDate(ev.date)}, ${ev.time})`));
       div.append($('<p>').text(`📍 ${ev.location}`).css({ fontSize: '0.85em', color: '#666', marginTop: '0.25em' }));
       section.append(div);

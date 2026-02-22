@@ -23,6 +23,17 @@
       <form id="activityForm">
         <input type="text" id="cityInput" placeholder="e.g., San Jose, CA" required />
 
+        <div class="kids-age-section">
+          <label class="section-label">Kids' Ages</label>
+          <div id="kidsAgeInputs" class="kids-age-inputs">
+            <div class="age-row">
+              <input type="number" class="kid-age" min="0" max="17" placeholder="Age" />
+              <button type="button" class="remove-kid-btn" title="Remove">&times;</button>
+            </div>
+          </div>
+          <button type="button" id="addKidBtn" class="add-kid-btn">+ Add another kid</button>
+        </div>
+
         <div class="checkbox-grid">
           <label><input type="checkbox" id="music" /> Music</label>
           <label><input type="checkbox" id="outdoors" /> Outdoors</label>

@@ -17,13 +17,14 @@ app.use(express.json());
 
 app.post('/recommend', async (req, res) => {
   try {
-    const { city, preferences = {} } = req.body;
+    const { city, preferences = {}, kidsAges = [] } = req.body;
 
     const memory = createSharedMemory();
     memory.city = city;
     memory.preferences = preferences;
+    memory.kidsAges = kidsAges;
 
-    const result = await ActivityAgent.run(city, preferences, memory);
+    const result = await ActivityAgent.run(city, preferences, memory, kidsAges);
 
     res.json({
       recommendation: result,

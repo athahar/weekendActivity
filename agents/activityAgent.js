@@ -6,15 +6,15 @@ export const ActivityAgent = {
   goal: 'Recommend activities based on weather, time, and user preferences.',
   tools: ['WeatherAgent', 'EventAgent'],
 
-  async run(city, preferences, memory) {
+  async run(city, preferences, memory, kidsAges = []) {
     console.log(`\n🔄 ${this.name} starting execution`);
-    console.log(`📥 Input: city=${city}, preferences=${JSON.stringify(preferences)}`);
+    console.log(`📥 Input: city=${city}, preferences=${JSON.stringify(preferences)}, kidsAges=${JSON.stringify(kidsAges)}`);
 
     memory.log.push({
       agent: this.name,
       goal: this.goal,
       status: 'started',
-      input: { city, preferences }
+      input: { city, preferences, kidsAges }
     });
 
     // Step 1: Get weather
@@ -22,9 +22,9 @@ export const ActivityAgent = {
     await WeatherAgent.run(city, memory);
     console.log(`✅ WeatherAgent completed`);
 
-    // Step 2: Get events
+    // Step 2: Get events (with kids' ages for age-appropriate recommendations)
     console.log(`\n📞 ${this.name} calling EventAgent`);
-    await EventAgent.run(city, preferences, memory);
+    await EventAgent.run(city, preferences, memory, kidsAges);
     console.log(`✅ EventAgent completed`);
 
     // Step 3: Compose final recommendation
