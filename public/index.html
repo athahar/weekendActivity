@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>WanderSpark</title>
+  <title>WanderSpark — Find Your Spark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 </head>
 <body>
+  <!-- Sidebar (History) -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <h2 class="sidebar-title">History</h2>
@@ -19,72 +22,141 @@
 
   <button id="sidebarToggle" class="sidebar-toggle">&#9776;</button>
 
-  <main class="main-content">
-    <div class="container">
-      <div class="card">
-        <div class="logo-title">
-          <div>
-            <h1 class="title">
-              WanderSpark <span class="spark">&#10024;</span>
-            </h1>
-            <p class="tagline">Find your spark</p>
-          </div>
+  <!-- Main Container -->
+  <main class="main-wrapper">
+    <!-- Animated background -->
+    <div class="hero-bg">
+      <div class="hero-gradient-1"></div>
+      <div class="hero-gradient-2"></div>
+      <div class="hero-gradient-3"></div>
+      <div class="hero-noise"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+      <div class="nav-inner">
+        <a href="/" class="nav-logo">WanderSpark<sup>®</sup></a>
+        <div class="nav-links">
+          <a href="#" class="nav-link active">Home</a>
+          <a href="#discover" class="nav-link">Discover</a>
+          <a href="#about" class="nav-link">About</a>
+          <a href="#journal" class="nav-link">Journal</a>
+        </div>
+        <button class="nav-cta" onclick="document.getElementById('finder-section').scrollIntoView({behavior:'smooth'})">Find Activities</button>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <p class="hero-eyebrow animate-fade-rise">Weekend plans, reimagined</p>
+      <h1 class="hero-headline animate-fade-rise">
+        Beyond the <em>ordinary,</em><br/>
+        we find <em>the extraordinary.</em>
+      </h1>
+      <p class="hero-description animate-fade-rise-delay">
+        Discover curated weekend activities for your family — powered by weather, your kids' ages, and what sparks joy.
+        From hidden local gems to outdoor adventures, we find the perfect plans.
+      </p>
+      <button class="hero-cta animate-fade-rise-delay-2" onclick="document.getElementById('finder-section').scrollIntoView({behavior:'smooth'})">
+        Begin Your Journey
+      </button>
+      <div class="scroll-indicator animate-fade-rise-delay-2">
+        <div class="scroll-arrow"></div>
+      </div>
+    </section>
+
+    <!-- Activity Finder Section -->
+    <section class="finder-section" id="finder-section">
+      <div class="finder-container">
+        <div class="finder-header">
+          <h2 class="finder-title">Find Your <em>Spark</em></h2>
+          <p class="finder-subtitle">Tell us where you are and what you love. We'll handle the rest.</p>
         </div>
 
-        <form id="activityForm">
-          <input type="text" id="cityInput" placeholder="e.g., San Jose, CA" required />
-
-          <div class="filters-row">
-            <div class="filter-group">
-              <label class="section-label" for="radiusSelect">Distance</label>
-              <select id="radiusSelect">
-                <option value="10">Within 10 mi</option>
-                <option value="25" selected>Within 25 mi</option>
-                <option value="50">Within 50 mi</option>
-                <option value="100">Within 100 mi</option>
-              </select>
+        <div class="finder-card">
+          <form id="activityForm">
+            <div class="form-group">
+              <label class="form-label" for="cityInput">Where are you?</label>
+              <input type="text" id="cityInput" class="form-input" placeholder="e.g., San Jose, CA" required />
             </div>
-            <div class="filter-group">
-              <label class="section-label" for="dateInput">Date</label>
-              <input type="date" id="dateInput" />
-            </div>
-          </div>
 
-          <div class="kids-age-section">
-            <label class="section-label">Kids' Ages</label>
-            <div id="kidsAgeInputs" class="kids-age-inputs">
-              <div class="age-row">
-                <input type="number" class="kid-age" min="0" max="17" placeholder="Age" />
-                <button type="button" class="remove-kid-btn" title="Remove">&times;</button>
+            <div class="filters-row">
+              <div class="form-group">
+                <label class="form-label" for="radiusSelect">Distance</label>
+                <select id="radiusSelect" class="form-select">
+                  <option value="10">Within 10 mi</option>
+                  <option value="25" selected>Within 25 mi</option>
+                  <option value="50">Within 50 mi</option>
+                  <option value="100">Within 100 mi</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dateInput">When?</label>
+                <input type="date" id="dateInput" class="form-date" />
               </div>
             </div>
-            <button type="button" id="addKidBtn" class="add-kid-btn">+ Add another kid</button>
-          </div>
 
-          <div class="checkbox-grid">
-            <label><input type="checkbox" id="music" /> Music</label>
-            <label><input type="checkbox" id="outdoors" /> Outdoors</label>
-            <label><input type="checkbox" id="kids" /> Family & Kids</label>
-            <label><input type="checkbox" id="food" /> Food & Drink</label>
-            <label><input type="checkbox" id="wellness" /> Health & Wellness</label>
-            <label><input type="checkbox" id="markets" /> Local Markets</label>
-          </div>
+            <div class="form-group">
+              <label class="form-label">Kids' Ages</label>
+              <div id="kidsAgeInputs" class="kids-age-inputs">
+                <div class="age-row">
+                  <input type="number" class="kid-age" min="0" max="17" placeholder="Age" />
+                  <button type="button" class="remove-kid-btn" title="Remove">&times;</button>
+                </div>
+              </div>
+              <button type="button" id="addKidBtn" class="add-kid-btn">+ Add another kid</button>
+            </div>
 
-          <button type="submit" id="submitBtn">Get Recommendation</button>
-          <div id="thinkingIndicator" class="hidden">&#129300; Thinking...</div>
-        </form>
+            <div class="form-group">
+              <label class="form-label">What interests you?</label>
+              <div class="interest-grid">
+                <label class="interest-chip">
+                  <input type="checkbox" id="music" />
+                  <span class="chip-content"><span class="chip-emoji">🎵</span> Music</span>
+                </label>
+                <label class="interest-chip">
+                  <input type="checkbox" id="outdoors" />
+                  <span class="chip-content"><span class="chip-emoji">🌿</span> Outdoors</span>
+                </label>
+                <label class="interest-chip">
+                  <input type="checkbox" id="kids" />
+                  <span class="chip-content"><span class="chip-emoji">👨‍👩‍👧</span> Family & Kids</span>
+                </label>
+                <label class="interest-chip">
+                  <input type="checkbox" id="food" />
+                  <span class="chip-content"><span class="chip-emoji">🍽️</span> Food & Drink</span>
+                </label>
+                <label class="interest-chip">
+                  <input type="checkbox" id="wellness" />
+                  <span class="chip-content"><span class="chip-emoji">🧘</span> Health & Wellness</span>
+                </label>
+                <label class="interest-chip">
+                  <input type="checkbox" id="markets" />
+                  <span class="chip-content"><span class="chip-emoji">🛍️</span> Local Markets</span>
+                </label>
+              </div>
+            </div>
 
-        <div id="resultBox" class="hidden">
-          <div id="weatherToday"></div>
-          <div id="structuredResult" class="structured-box"></div>
+            <button type="submit" id="submitBtn" class="submit-btn">
+              <span class="btn-text">Get Recommendation</span>
+              <span class="btn-arrow">→</span>
+            </button>
+            <div id="thinkingBox" class="thinking-box hidden">🔎 Checking the weather...</div>
+          </form>
+        </div>
+
+        <!-- Results -->
+        <div id="resultBox" class="result-section hidden">
+          <div id="weatherToday" class="weather-card"></div>
+          <div id="structuredResult" class="events-container"></div>
 
           <details class="debug-toggle">
-            <summary>&#128736;&#65039; Memory (debug)</summary>
+            <summary>🛠️ Memory (debug)</summary>
             <pre id="debugMemory"></pre>
           </details>
         </div>
       </div>
-    </div>
+    </section>
   </main>
 
   <script src="script.js"></script>
