@@ -318,7 +318,7 @@ $('#activityForm').on('submit', async function (e) {
   const $debug = $('#debugMemory');
 
   $submitBtn.prop('disabled', true);
-  $submitBtn.text('Thinking...');
+  $submitBtn.find('.btn-text').text('Thinking...');
   $resultBox.addClass('hidden');
   $structured.html('');
   $weatherEl.html('');
@@ -365,7 +365,7 @@ $('#activityForm').on('submit', async function (e) {
     $thinkingBox.text('Failed to fetch recommendations.');
   } finally {
     $submitBtn.prop('disabled', false);
-    $submitBtn.text('Get Recommendation');
+    $submitBtn.find('.btn-text').text('Get Recommendation');
   }
 });
 
